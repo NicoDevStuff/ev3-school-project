@@ -7,6 +7,7 @@ fn main() {
     // coordinates will range from [0,0] to [19,9]
     let mut engine = console_engine::ConsoleEngine::init(20, 10, 3).unwrap();
     let value = 14;
+    
     // main loop, be aware that you'll have to break it because ctrl+C is captured
     loop {
         engine.wait_frame(); // wait for next frame + capture inputs
