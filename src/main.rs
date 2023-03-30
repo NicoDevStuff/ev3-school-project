@@ -1,27 +1,68 @@
+extern crate ev3dev_lang_rust;
+
+use ev3dev_lang_rust::Ev3Result;
+use ev3dev_lang_rust::motors::{LargeMotor, MotorPort, MediumMotor};
+use ev3dev_lang_rust::sensors::UltrasonicSensor;
+use ev3dev_lang_rust::sound;
+
 use console_engine::pixel;
 use console_engine::Color;
 use console_engine::KeyCode;
 
-fn main() {
-    // initializes a screen of 20x10 characters with a target of 3 frames per second
-    // coordinates will range from [0,0] to [19,9]
-    let mut engine = console_engine::ConsoleEngine::init(20, 10, 3).unwrap();
-    let value = 14;
-    
-    // main loop, be aware that you'll have to break it because ctrl+C is captured
-    loop {
-        engine.wait_frame(); // wait for next frame + capture inputs
-        engine.clear_screen(); // reset the screen
-    
-        engine.line(0, 0, 19, 9, pixel::pxl('#')); // draw a line of '#' from [0,0] to [19,9]
-        engine.print(0, 4, format!("Result: {}", value).as_str()); // prints some value at [0,4]
-    
-        engine.set_pxl(4, 0, pixel::pxl_fg('O', Color::Cyan)); // write a majestic cyan 'O' at [4,0]
+const FOV: f32 = 70f32;
 
-        if engine.is_key_pressed(KeyCode::Char('q')) { // if the user presses 'q' :
-            break; // exits app
-        }
+const speed: i32 = 30i32;
+
+fn main() -> Ev3Result<()>{
+    let mut engine = console_engine::ConsoleEngine::init(44, 21, 30).unwrap();
+     
+    let ultrasonicsensor = UltrasonicSensor::find()?;
+
+    let radar_motor = MediumMotor::get(MotorPort::OutB)?;
+
+    sound::speak("RADA!")?.wait()?;
     
-        engine.draw(); // draw the screen
+    radar_motor.reset();
+
+    radar_motor.run_direct()?;
+
+    radar_motor.set_duty_cycle_sp(speed)?;
+
+    let mut distance: i32 = 0;
+
+    let mut height: f32 = 0f32;
+    
+
+    let mut x: i32 = 0;
+    loop {
+        distance = ultrasonicsensor.get_distance().unwrap();
+        engine.wait_frame(); 
+        //engine.clear_screen();     
+                
+        let position: f32 = radar_motor.get_position()? as f32;
+
+        height = 21f32 - (distance as f32 / (2550f32 / 21f32));
+
+        x = ((position / FOV/ 2f32 + 0.5f32) * 44f32) as i32;
+        
+        engine.line(x, 0, x, 21, pixel::pxl_fg('0', Color::White));
+        engine.line(x, ((21f32-height)/2f32) as i32, x, (21f32-((21f32-height)/2f32)) as i32, pixel::pxl_fg('0', Color::Black));
+        
+        if engine.is_key_pressed(KeyCode::Char('q')) { 
+            radar_motor.set_duty_cycle_sp(0)?;
+            break; 
+        }
+
+        if position >= FOV {
+            radar_motor.set_duty_cycle_sp(-speed)?;
+        } else if position <= -FOV {
+            radar_motor.set_duty_cycle_sp(speed)?;
+        }
+
+    
+        engine.draw(); 
+
     }
+
+    Ok(())
 }
