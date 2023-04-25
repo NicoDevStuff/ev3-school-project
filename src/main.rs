@@ -20,7 +20,7 @@ fn main() -> Ev3Result<()>{
 
     let radar_motor = MediumMotor::get(MotorPort::OutB)?;
 
-    sound::speak("But can it run doom?")?.wait()?;
+    sound::speak("But can it run doom? no!")?.wait()?;
     
     radar_motor.reset()?;
     
@@ -32,6 +32,8 @@ fn main() -> Ev3Result<()>{
     let mut height: f32;
     let mut x: i32;
 
+    let mut prevx: i32;
+    prevx = 0;
     loop {
         distance = ultrasonicsensor.get_distance().unwrap();
         engine.wait_frame(); 
@@ -42,20 +44,22 @@ fn main() -> Ev3Result<()>{
         height = 21f32 - (distance as f32 / (2550f32 / 21f32));
 
         x = ((position / FOV/ 2f32 + 0.5f32) * 44f32) as i32;
-        
-        engine.line(x, 0, x, 21, pixel::pxl_fg('0', Color::White));
-        engine.line(x, ((21f32-height)/2f32) as i32, x, (21f32-((21f32-height)/2f32)) as i32, pixel::pxl_fg('0', Color::Black));
-        
+         
         if engine.is_key_pressed(KeyCode::Char('q')) { 
             radar_motor.set_duty_cycle_sp(0)?;
             break; 
         }
+        engine.fill_rect(prevx, 0, x, 21, pixel::pxl_fg('0', Color::White)); 
+        engine.fill_rect(prevx, ((21f32-height)/2f32) as i32, x, (21f32-((21f32-height)/2f32)) as i32, pixel::pxl_fg('0', Color::Black)); 
+        
+        prevx = x;
 
         if position >= FOV {
             radar_motor.set_duty_cycle_sp(-SPEED)?;
         } else if position <= -FOV {
             radar_motor.set_duty_cycle_sp(SPEED)?;
         }
+        
 
     
         engine.draw(); 
