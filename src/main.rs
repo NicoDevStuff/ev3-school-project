@@ -1,7 +1,7 @@
 extern crate ev3dev_lang_rust;
 
 use ev3dev_lang_rust::Ev3Result;
-use ev3dev_lang_rust::motors::{LargeMotor, MotorPort, MediumMotor};
+use ev3dev_lang_rust::motors::{ MotorPort, MediumMotor };
 use ev3dev_lang_rust::sensors::UltrasonicSensor;
 use ev3dev_lang_rust::sound;
 
@@ -11,7 +11,7 @@ use console_engine::KeyCode;
 
 const FOV: f32 = 70f32;
 
-const speed: i32 = 30i32;
+const SPEED: i32 = 30i32;
 
 fn main() -> Ev3Result<()>{
     let mut engine = console_engine::ConsoleEngine::init(44, 21, 30).unwrap();
@@ -20,20 +20,18 @@ fn main() -> Ev3Result<()>{
 
     let radar_motor = MediumMotor::get(MotorPort::OutB)?;
 
-    sound::speak("RADA!")?.wait()?;
+    sound::speak("But can it run doom?")?.wait()?;
     
-    radar_motor.reset();
-
+    radar_motor.reset()?;
+    
     radar_motor.run_direct()?;
 
-    radar_motor.set_duty_cycle_sp(speed)?;
+    radar_motor.set_duty_cycle_sp(SPEED)?;
 
-    let mut distance: i32 = 0;
+    let mut distance: i32;
+    let mut height: f32;
+    let mut x: i32;
 
-    let mut height: f32 = 0f32;
-    
-
-    let mut x: i32 = 0;
     loop {
         distance = ultrasonicsensor.get_distance().unwrap();
         engine.wait_frame(); 
@@ -54,9 +52,9 @@ fn main() -> Ev3Result<()>{
         }
 
         if position >= FOV {
-            radar_motor.set_duty_cycle_sp(-speed)?;
+            radar_motor.set_duty_cycle_sp(-SPEED)?;
         } else if position <= -FOV {
-            radar_motor.set_duty_cycle_sp(speed)?;
+            radar_motor.set_duty_cycle_sp(SPEED)?;
         }
 
     
