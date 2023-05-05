@@ -19,7 +19,7 @@ fps = gui.Label(pygame.Vector2(500, 500), "60")
 HOST = '127.0.0.1'
 PORT = 6969
 
-
+a = " "
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((HOST, PORT))
 server_socket.listen()
@@ -28,7 +28,9 @@ server_socket.listen()
 def sw():
     switch1.label += " More Clicking"
 def btn():
-    client_socket.send(b'100')
+    global a
+    a += "a"
+    client_socket.send(a.encode('utf-8'))
 
 while True:
     try:
@@ -45,6 +47,7 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
+            client_socket.send(b'quit')
     
     screen.fill((50, 50, 50))
     
@@ -66,4 +69,4 @@ while not done:
     clock.tick(60)
     pygame.display.update()
 
-
+server_socket.close()
