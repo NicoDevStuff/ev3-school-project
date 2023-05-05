@@ -1,37 +1,50 @@
-import socket
+
 import pygame
+import socket
 
-HOST = '127.0.0.1'
-PORT = 6969
 
-screen = pygame.display.set_mode((800, 600))
-pygame.display.set_caption("Test Client")
+pygame.init()
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect((HOST, PORT))
 
-done = False
+screen_width = 640
+screen_height = 480
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Socket Client")
 
-client.send('Client connected'.encode('utf-8'))
 
-while not done:
+font = pygame.font.SysFont("Arial", 24)
+
+host = '127.0.0.1'
+port = 6969
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect((host, port))
+client_socket.setblocking(False)
+
+clock = pygame.time.Clock()
+running = True
+while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            done = True
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                message = "Hello, server!"
+                client_socket.send(message.encode())
 
-    screen.fill((255, 255, 255))
+    try:
+        data = client_socket.recv(1024)
+        if data:
+            message = data.decode()
+            text = font.render(message, True, (255, 255, 255))
+            screen.blit(text, (10, 10))
+            pygame.display.flip()
+    except socket.error:
+        pass
+
     
-    keys = pygame.key.get_pressed()
-
-    msg = client.recv(1024).decode('utf-8')
-    if msg == 'quit':
-        done = True
-    else:
-        if msg != "":
-            print(msg)
-    
-    if keys[pygame.K_SPACE]:
-        client.send('space'.encode('utf-8'))
-
     pygame.display.update()
-client.close()
+    clock.tick(60)
+
+client_socket.close()
+pygame.quit()
+
