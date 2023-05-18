@@ -1,7 +1,7 @@
 import socket
 import pygame
 import gui
-
+import os
 
 pygame.init()
 
@@ -16,10 +16,10 @@ fps = gui.Label(pygame.Vector2(500, 500), "60")
 
 
 
-HOST = '127.0.0.1'
+HOST = '192.168.43.173'
 PORT = 6969
 
-a = " "
+
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((HOST, PORT))
 server_socket.listen()
@@ -28,9 +28,7 @@ server_socket.listen()
 def sw():
     switch1.label += " More Clicking"
 def btn():
-    global a
-    a += "a"
-    client_socket.send(a.encode('utf-8'))
+    pass#client_socket.send((str(f)+" "+str(i)).encode('utf-8'))
 
 while True:
     try:
@@ -46,12 +44,37 @@ client_socket.setblocking(False)
 while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            done = True
             client_socket.send(b'quit')
+            done = True
+            
     
     screen.fill((50, 50, 50))
     
     keys = pygame.key.get_pressed()
+    
+    steer = [0, 0]
+    if keys[pygame.K_UP]:
+        steer[0] += 1
+        steer[1] += 1
+
+    if keys[pygame.K_LEFT]:
+        steer[0] += 1
+        steer[1] -= 1
+
+    if keys[pygame.K_RIGHT]:
+        steer[0] -= 1
+        steer[1] += 1
+
+    if keys[pygame.K_DOWN]:
+        steer[0] -= 1
+        steer[1] -= 1
+
+
+
+    client_socket.send((str(steer[0])+" "+str(steer[1])).encode('utf-8'))
+
+
+
 
     switch1.show(screen, sw)
     button1.show(screen, btn)
@@ -60,13 +83,17 @@ while not done:
     fps.show(screen)
 
     try:
-        data = client_socket.recv(1024)
-        if data:
-            print(f"Received message: {data.decode()}")
+        data = client_socket.recv(128)
+        l = data.decode().split(" ")
+        del l[0]
+        l = list(zip(l[::2], l[1::2]))
+        for e in l:
+            pygame.draw.line(screen, (255, 0, 0), ((float(e[0])+180)*5, 0), ((float(e[0])+180)*5, 720))
+        pygame.display.update()
     except:
         pass
     
-    clock.tick(60)
-    pygame.display.update()
-
+    
+    #pygame.display.update()
+os.wait()
 server_socket.close()
