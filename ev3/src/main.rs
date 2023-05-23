@@ -3,6 +3,7 @@ extern crate ev3dev_lang_rust;
 use std::io::{self, Read, Write};
 use std::net::TcpStream;
 
+
 use ev3dev_lang_rust::motors::{MediumMotor, MotorPort, LargeMotor};
 use ev3dev_lang_rust::sensors::UltrasonicSensor;
 use ev3dev_lang_rust::Ev3Result;
@@ -12,7 +13,7 @@ const FOV: f32 = 70.;
 const SPEED: i32 = 30;
 
 fn main() -> Ev3Result<()> {
-    let mut stream = TcpStream::connect("192.168.43.173:6969")?;
+    let mut stream = TcpStream::connect("192.168.178.151:6969")?;
     stream.set_nonblocking(true);
 
 
@@ -37,11 +38,9 @@ fn main() -> Ev3Result<()> {
     let mut steer_r: f32 = 0.0;
     let mut steer_l: f32 = 0.0;
 
+ 
 
-    
-
-    loop {
-
+    loop { 
         let mut buf = [0; 128];
         match stream.read(&mut buf) {
             Ok(bytes_read) => {
@@ -66,9 +65,6 @@ fn main() -> Ev3Result<()> {
             }
         }
         
-        println!("{}", steer_r);
-        println!("{}", steer_l);
-
         let distance = ultrasonicsensor.get_distance().unwrap();
         let position: f32 = radar_motor.get_position()? as f32;
 

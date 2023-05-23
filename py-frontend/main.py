@@ -14,9 +14,23 @@ button1 = gui.Button(pygame.Vector2(90, 30), False, "Click me")
 label1 = gui.Label(pygame.Vector2(150, 30), "Test")
 fps = gui.Label(pygame.Vector2(500, 500), "60")
 
+def get_local_ip():
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect(("8.8.8.8", 80))
+        local_ip = sock.getsockname()[0]
+        sock.close()
+
+        return local_ip
+    except socket.error:
+        return "Unable to retrieve local IP address."
 
 
-HOST = '192.168.43.173'
+
+HOST = get_local_ip()
+
+print(HOST)
+
 PORT = 6969
 
 
@@ -28,7 +42,8 @@ server_socket.listen()
 def sw():
     switch1.label += " More Clicking"
 def btn():
-    pass#client_socket.send((str(f)+" "+str(i)).encode('utf-8'))
+    pass
+
 
 while True:
     try:
@@ -42,12 +57,13 @@ done = False
 client_socket.setblocking(False)
 
 while not done:
+    clock.tick(60)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             client_socket.send(b'quit')
             done = True
             
-    
+     
     screen.fill((50, 50, 50))
     
     keys = pygame.key.get_pressed()
@@ -70,8 +86,10 @@ while not done:
         steer[1] -= 1
 
 
-
-    client_socket.send((str(steer[0])+" "+str(steer[1])).encode('utf-8'))
+    try:
+        client_socket.send((str(steer[0])+" "+str(steer[1])+" ").encode('utf-8'))
+    except:
+        pass
 
 
 
