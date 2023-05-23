@@ -55,7 +55,7 @@ while True:
 done = False
 
 client_socket.setblocking(False)
-
+last = [0, 0]
 while not done:
     clock.tick(60)
     for event in pygame.event.get():
@@ -64,7 +64,7 @@ while not done:
             done = True
             
      
-    screen.fill((50, 50, 50))
+    #screen.fill((50, 50, 50))
     
     keys = pygame.key.get_pressed()
     
@@ -94,19 +94,24 @@ while not done:
 
 
 
-    switch1.show(screen, sw)
-    button1.show(screen, btn)
-    label1.show(screen)
-    fps.text = f"FPS: { clock.get_fps() }"
-    fps.show(screen)
-
+    
+    
     try:
         data = client_socket.recv(128)
         l = data.decode().split(" ")
         del l[0]
-        l = list(zip(l[::2], l[1::2]))
-        for e in l:
-            pygame.draw.line(screen, (255, 0, 0), ((float(e[0])+180)*5, 0), ((float(e[0])+180)*5, 720))
+        
+
+        switch1.show(screen, sw)
+        button1.show(screen, btn)
+        label1.show(screen)
+
+        height = min(int(100000 / float(l[1])), 360)
+        x = (float(l[0])+70)*(1280/140)
+       
+        pygame.draw.rect(screen, (0 ,0 , 0), (x, 0, x-last[1], 720), 1)
+        pygame.draw.line(screen, (0, 255, 0), (x, 360-height), (x, 360+height))
+        last = [height, x]
         pygame.display.update()
     except:
         pass

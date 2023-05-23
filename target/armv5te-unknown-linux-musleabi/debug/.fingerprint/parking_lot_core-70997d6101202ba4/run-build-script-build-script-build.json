@@ -1,1 +1,0 @@
-{"rustc":13494476315309400086,"features":"","target":0,"profile":0,"path":0,"deps":[[15929630514768279429,"build_script_build",false,3371122656483711697]],"local":[{"RerunIfChanged":{"output":"armv5te-unknown-linux-musleabi/debug/build/parking_lot_core-70997d6101202ba4/output","paths":["build.rs"]}}],"rustflags":[],"metadata":0,"config":0,"compile_kind":0}

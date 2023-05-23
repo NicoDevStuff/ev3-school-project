@@ -1,1 +1,0 @@
-{"rustc":13494476315309400086,"features":"","target":0,"profile":0,"path":0,"deps":[[13250817853276013391,"build_script_build",false,10892541678963931681]],"local":[{"RerunIfChanged":{"output":"armv5te-unknown-linux-musleabi/release/build/libc-b9ab31dd1b1273ae/output","paths":["build.rs"]}}],"rustflags":[],"metadata":0,"config":0,"compile_kind":0}

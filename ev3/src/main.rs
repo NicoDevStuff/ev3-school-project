@@ -10,10 +10,10 @@ use ev3dev_lang_rust::Ev3Result;
 
 
 const FOV: f32 = 70.;
-const SPEED: i32 = 30;
+const SPEED: i32 = 50;
 
 fn main() -> Ev3Result<()> {
-    let mut stream = TcpStream::connect("192.168.178.151:6969")?;
+    let mut stream = TcpStream::connect("192.168.43.173:6969")?;
     stream.set_nonblocking(true);
 
 
