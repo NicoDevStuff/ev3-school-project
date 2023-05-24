@@ -10,10 +10,10 @@ use ev3dev_lang_rust::Ev3Result;
 
 
 const FOV: f32 = 70.;
-const SPEED: i32 = 50;
+const SPEED: i32 = 40;
 
 fn main() -> Ev3Result<()> {
-    let mut stream = TcpStream::connect("192.168.43.173:6969")?;
+    let mut stream = TcpStream::connect("192.168.178.151:6969")?;
     stream.set_nonblocking(true);
 
 
@@ -70,7 +70,7 @@ fn main() -> Ev3Result<()> {
 
         
         
-        stream.write_all((" ".to_owned() + &position.to_string().as_str() + " " + &distance.to_string()).as_bytes())?; 
+        stream.write_all(("x".to_owned() + &position.to_string().as_str() + " " + &distance.to_string()).as_bytes())?; 
 
         r_motor.set_duty_cycle_sp((steer_r*100f32) as i32);
         l_motor.set_duty_cycle_sp((steer_l*100f32) as i32);
