@@ -5,7 +5,7 @@ use std::net::TcpStream;
 
 
 use ev3dev_lang_rust::motors::{MediumMotor, MotorPort, LargeMotor};
-use ev3dev_lang_rust::sensors::UltrasonicSensor;
+use ev3dev_lang_rust::sensors::{UltrasonicSensor, GyroSensor, TouchSensor};
 use ev3dev_lang_rust::Ev3Result;
 
 
@@ -13,11 +13,13 @@ const FOV: f32 = 70.;
 const SPEED: i32 = 40;
 
 fn main() -> Ev3Result<()> {
-    let mut stream = TcpStream::connect("192.168.178.151:6969")?;
+    let mut stream = TcpStream::connect("192.168.43.173:6969")?;
     stream.set_nonblocking(true);
 
 
     let ultrasonicsensor = UltrasonicSensor::find()?;
+    let gyrosensor = GyroSensor::find()?;
+    let exitbutton = TouchSensor::find()?;
 
     let radar_motor = MediumMotor::get(MotorPort::OutB)?;
 
@@ -37,7 +39,8 @@ fn main() -> Ev3Result<()> {
    
     let mut steer_r: f32 = 0.0;
     let mut steer_l: f32 = 0.0;
-
+    
+    let mut position: f32 = 0.;
  
 
     loop { 
@@ -66,11 +69,13 @@ fn main() -> Ev3Result<()> {
         }
         
         let distance = ultrasonicsensor.get_distance().unwrap();
-        let position: f32 = radar_motor.get_position()? as f32;
+        position = radar_motor.get_position()? as f32;
 
+        if exitbutton.get_pressed_state().unwrap() {
+            break;
+        }
         
-        
-        stream.write_all(("x".to_owned() + &position.to_string().as_str() + " " + &distance.to_string()).as_bytes())?; 
+        stream.write_all(("x".to_owned() + &position.to_string().as_str() + " " + &distance.to_string() + " " + &gyrosensor.get_angle().unwrap().to_string()).as_bytes())?; 
 
         r_motor.set_duty_cycle_sp((steer_r*100f32) as i32);
         l_motor.set_duty_cycle_sp((steer_l*100f32) as i32);
@@ -84,7 +89,8 @@ fn main() -> Ev3Result<()> {
         }
 
     }
-
+    radar_motor.run_to_abs_pos(Some(position as i32))?;
+    radar_motor.wait_until_not_moving(None);
     radar_motor.reset()?;
 
     Ok(())

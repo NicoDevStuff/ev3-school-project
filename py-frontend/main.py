@@ -111,19 +111,21 @@ while not done:
           
 
 
-        l = [0, 0]
+        l = [0, 0, 0]
         fff = 0
         for u in mm:
             try:
                 u = u.split(" ")
                 l[0] += float(u[0])
                 l[1] += float(u[1])
+                l[2] += float(u[2])
                 fff += 1
             except:
                 pass
         try:
             l[0] /= fff
             l[1] /= fff
+            l[2] /= fff
         except:
             pass
 
@@ -139,7 +141,8 @@ while not done:
         pygame.draw.polygon(screen, (color, color, color), [(x, 360-height), (last[1], 360-last[0]), (last[1], 360+last[0]), (x, 360+height)])
 
         
-        
+        pygame.draw.circle(screen, (20, 20, 20), (100, 620), 100)
+        pygame.draw.line(screen, (255, 0, 0), (100, 620), (100+math.cos(math.radians(l[2]))*90, 620+math.sin(math.radians(l[2]))*90), 3)
 
         last = [height, x, l[0], l[1]]
 
